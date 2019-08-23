@@ -1,6 +1,6 @@
 from . runDBServer import run
-from . DB import DB, readJson
-
+from . DB          import readJson
+from . LogDB       import Loggar as DB
 
 
 
@@ -15,6 +15,7 @@ with DB(**meta, ifFail=None) as db: #runOnFail
     db("SELECT TABLE_TYPE, TABLE_NAME FROM information_schema.TABLES where TABLE_SCHEMA=%s", meta['params']['db'])
     spacing = 20
     print(*[f'{i[0]:^{spacing}}' for i in db.description], f'{"cnt":^{spacing}}', sep='|')
+    print(*(['='*spacing]*(len(db.description) + 1)), sep='X')
     tables = db.fetchall()
     for i in tables:
         db(f"SELECT count(*) FROM {i[1]}")

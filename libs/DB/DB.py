@@ -72,12 +72,16 @@ class DB:
     def __exit__(self, exc_type, exc_value, traceback):
         #print('exit')
         self.close()
+        
     def pprint(self, cursor=None, count=None, poleWidth=20, file=sys.stdout):
       if cursor is None:
         cursor = self.defcursor
       print(*[f'{d[0]:^{poleWidth}}' for d in cursor.description], sep='|', file=file)
       print(*(['=' * poleWidth] * len(cursor.description)) , sep='X',  file=file)
-      rows = cursor.fetchmany(count)
+      if count is not None:
+          rows = cursor.fetchmany(count)
+      else:
+          rows = cursor.fetchall()
       for row in rows:
         print(*[f'{str(value):^{poleWidth}}' for value in row], sep='|', file=file)
       print(f'{len(rows)} row(s)')
