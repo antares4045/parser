@@ -1,0 +1,11 @@
+{ "required" : { "pygit"          : {"loadas" : "python-git"}
+               , "npm"            : null
+               , "PyQt5"          : null
+               , "requests"       : {"as" : "req"}
+               , "bs4"            : {"importlist" : {"BeautifulSoup" : null}}
+               , "fake_useragent" : null
+               , "pyodbc"         : null
+               , "pymysql"        : null
+               , "postmen"        : null
+               }
+}

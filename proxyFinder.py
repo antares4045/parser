@@ -1,6 +1,6 @@
 import json
 import sys
-
+import pprint as postmen
 from required import required
 
 req = required('requests')
@@ -40,9 +40,9 @@ def call(*args, **params):
 
 class goodHttpProxyApi:
     api = r'http://api.foxtools.ru/v2/Proxy'
-    def __init__(self):
+    def __init__(self, type='https'):
         self.respo = None
-        
+        self.type  = type
     def nextPage(self):
         page = 1
         if self.respo is not None:
@@ -50,7 +50,7 @@ class goodHttpProxyApi:
             if page > self.respo["response"]["pageCount"]:
                 raise StopIteration
             
-        respond = call(goodHttpProxyApi.api, params={'type' : 'https', 'available' : 'yes', 'free' : 'yes', 'page' : page})
+        respond = call(goodHttpProxyApi.api, params={'type' : self.type, 'available' : 'yes', 'free' : 'yes', 'page' : page})
         
         
         self.respo = json.loads(respond.text)
@@ -73,10 +73,22 @@ class goodHttpProxyApi:
         except StopIteration:
             return None
 
+def myipchecker(params):
+    r'http://ip-api.com/json/?fields=61439'
+
+"""
 if __name__ == '__main__':
     index = 0
-    for httpsProxy in goodHttpProxyApi():
+    type = 'https'
+    for proxy in goodHttpProxyApi(type=type):
         index += 1
-        print(f'{index}. https://{httpsProxy["ip"]}:{httpsProxy["port"]}')
-        print(httpsProxy)
-
+        addr = f'{type}://{proxy["ip"]}:{proxy["port"]}'
+        
+        respo = req.get(r'http://ip-api.com/json/?fields=61439', proxies={'http' : addr})
+        
+        print(f'{index}. {addr}')
+        print(addr)
+        
+        print(respo.text)
+        
+"""
