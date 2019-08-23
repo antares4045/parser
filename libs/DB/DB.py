@@ -1,7 +1,8 @@
 import os
+import sys
 import json
 import pymysql
-from runDBServer import run
+
 from contextlib import closing
 
 
@@ -15,10 +16,6 @@ def readJson(path, ifNotExists=lambda : print('panic')):
     with open(path, 'r', encoding='utf8') as fp:
         res = json.load(fp=fp)
     return res
-
-def runOnFail():
-    run()
-    return readJson(r'connect.json')
 
 class DB:
     def __init__(self, type, params={}, ifFail=None):
@@ -75,7 +72,16 @@ class DB:
     def __exit__(self, exc_type, exc_value, traceback):
         #print('exit')
         self.close()
-
+    def pprint(self, cursor=None, count=None, poleWidth=20, file=sys.stdout):
+      if cursor is None:
+        cursor = self.defcursor
+      print(*[f'{d[0]:^{poleWidth}}' for d in cursor.description], sep='|', file=file)
+      print(*(['=' * poleWidth] * len(cursor.description)) , sep='X',  file=file)
+      rows = cursor.fetchmany(count)
+      for row in rows:
+        print(*[f'{str(value):^{poleWidth}}' for value in row], sep='|', file=file)
+      print(f'{len(rows)} row(s)')
+    
     def __call__(self, *args, **params):
         return self.execute(*args, **params)
     
@@ -90,20 +96,3 @@ class DB:
 
 
 
-
-
-meta = readJson(path=r'connect.json', ifNotExists=None) #run
-
-
-with DB(**meta, ifFail=None) as db: #runOnFail
-    db("SELECT TABLE_TYPE, TABLE_NAME FROM information_schema.TABLES where TABLE_SCHEMA=%s", meta['params']['db'])
-    spacing = 20
-    print(*[f'{i[0]:^{spacing}}' for i in db.description], f'{"cnt":^{spacing}}', sep='|')
-    tables = db.fetchall()
-    for i in tables:
-        db(f"SELECT count(*) FROM {i[1]}")
-        print(*[f'{j:^{spacing}}' for j in i], f'{db.fetchone()[0]:^{spacing}}', sep='|')
-    print(f'{len(tables)} row(s)')
-
-                
-#pymysql.err.OperationalError
